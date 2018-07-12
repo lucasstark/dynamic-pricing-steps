@@ -66,7 +66,7 @@ if ( is_woocommerce_active() ) {
 			add_filter( 'woocommerce_product_get_price', array( $this, 'on_get_price' ), 10, 2 );
 			add_filter( 'woocommerce_cart_item_price', array( $this, 'on_get_cart_item_price' ), 10, 2 );
 
-			$this->_products_to_adjust   = array();
+			$this->_products_to_exclude   = array();
 			$this->_products_to_exclude[] = 5192;
 			$this->_products_to_exclude[] = 5193;
 			$this->_block_size           = 3;
@@ -126,6 +126,9 @@ if ( is_woocommerce_active() ) {
 				if ( $product_count && $product_count >= $this->_block_size ) {
 					foreach ( $cart->get_cart() as $cart_item_key => &$cart_item ) {
 						$product = $cart_item['data'];
+						if ( in_array( $product_id, $this->_products_to_exclude ) ) {
+							continue;
+						}
 
 						$quantity = $cart_item['quantity'];
 						$price    = $product->get_price( 'edit' );
