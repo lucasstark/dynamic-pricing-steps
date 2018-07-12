@@ -43,7 +43,7 @@ if ( is_woocommerce_active() ) {
 
 		private $_cart_setup = false;
 
-		private $_products_to_adjust;
+		private $_products_to_exclude;
 
 		private $_block_size;
 
@@ -67,7 +67,8 @@ if ( is_woocommerce_active() ) {
 			add_filter( 'woocommerce_cart_item_price', array( $this, 'on_get_cart_item_price' ), 10, 2 );
 
 			$this->_products_to_adjust   = array();
-			$this->_products_to_adjust[] = 5192;
+			$this->_products_to_exclude[] = 5192;
+			$this->_products_to_exclude[] = 5193;
 			$this->_block_size           = 3;
 			$this->_price_adjustment     = 10.00;
 
@@ -113,7 +114,7 @@ if ( is_woocommerce_active() ) {
 				foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
 					$product    = $cart_item['data'];
 					$product_id = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
-					if ( in_array( $product_id, $this->_products_to_adjust ) ) {
+					if ( !in_array( $product_id, $this->_products_to_exclude ) ) {
 						unset( WC()->cart->cart_contents[ $cart_item_key ]['es_adjusted_product_price'] );
 						$product_count += $cart_item['quantity'];
 					}
