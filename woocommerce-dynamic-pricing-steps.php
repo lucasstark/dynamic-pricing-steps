@@ -126,6 +126,7 @@ if ( is_woocommerce_active() ) {
 				if ( $product_count && $product_count >= $this->_block_size ) {
 					foreach ( $cart->get_cart() as $cart_item_key => &$cart_item ) {
 						$product = $cart_item['data'];
+						$product_id = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
 						if ( in_array( $product_id, $this->_products_to_exclude ) ) {
 							continue;
 						}
