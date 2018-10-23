@@ -69,6 +69,9 @@ if ( is_woocommerce_active() ) {
 			$this->_products_to_exclude   = array();
 			$this->_products_to_exclude[] = 5192;
 			$this->_products_to_exclude[] = 5193;
+
+
+
 			$this->_block_size           = 3;
 			$this->_price_adjustment     = 10.00;
 
@@ -107,22 +110,27 @@ if ( is_woocommerce_active() ) {
 				return;
 			}
 
-
 			if ( $cart && $cart->get_cart_contents_count() ) {
 
 				$product_count = 0;
 				foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
+					unset( WC()->cart->cart_contents[ $cart_item_key ]['es_adjusted_product_price'] );
+
 					$product    = $cart_item['data'];
 					$product_id = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
 					if ( !in_array( $product_id, $this->_products_to_exclude ) ) {
-						unset( WC()->cart->cart_contents[ $cart_item_key ]['es_adjusted_product_price'] );
 						$product_count += $cart_item['quantity'];
 					}
 				}
 
+				if (empty($product_count)) {
+					$this->_cart_setup = true;
+					return;
+				}
+
 
 				$applied   = 0;
-				$remaining = $this->_block_size;
+				$remaining = floor(($product_count / $this->_block_size)) * $this->_block_size;
 				if ( $product_count && $product_count >= $this->_block_size ) {
 					foreach ( $cart->get_cart() as $cart_item_key => &$cart_item ) {
 						$product = $cart_item['data'];
@@ -135,7 +143,7 @@ if ( is_woocommerce_active() ) {
 						$price    = $product->get_price( 'edit' );
 						$adjusted = $price - $this->_price_adjustment;
 
-						if ( $quantity === $remaining ) {
+						if ( $quantity == $remaining ) {
 							WC()->cart->cart_contents[ $cart_item_key ]['es_adjusted_product_price'] = $adjusted;
 							$remaining                                                               = 0;
 
